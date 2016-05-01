@@ -2,14 +2,22 @@ var express = require('express')
 var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
 var logger = require('morgan')
+var errorHandler = require('errorhandler')
 
 var app = express()
 var dbUri = 'mongodb://localhost:27017/api'
 var dbConnection = mongoose.createConnection(dbUri)
 var Schema = mongoose.Schema
 var postSchema = new Schema ({
-  title: String,
-  text: String
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  text: {
+    type: String,
+    required: true
+  }
 })
 var Post = dbConnection.model('Post', postSchema, 'posts')
 app.use(logger('dev'))
@@ -35,5 +43,7 @@ app.post('/posts', function(req, res, next) {
       res.send(results)
   })
 })
+
+app.use(errorHandler())
 
 var server = require('http').createServer(app).listen(3000)
