@@ -83,6 +83,18 @@ postSchema.pre('save', function(next){
   this.updatedAt = new Date()
   next()
 })
+postSchema.pre('validate', function(next){
+  var error = null
+  if (this.isModified('comments') && this.comments.length > 0) {
+    this.comments.forEach(function(value, key, list){
+      if (!value.text || !value.author.id) {
+        error = new Error('Text and author for a comment must be set')
+      }
+    })
+  }
+  if (error) return next(error)
+  next()
+})
 var Post = mongoose.model('Post', postSchema, 'posts')
 
 // Routes
