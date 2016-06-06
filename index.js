@@ -111,6 +111,14 @@ postSchema.pre('validate', function(next){
 postSchema.post('save', function(document){
   console.log('Object was saved!')
 })
+postSchema.statics.staticMethod = function(callback){
+  console.log('static method')
+  return callback()
+}
+postSchema.methods.myMethod = function(callback){
+  console.log('my method')
+  return callback()
+}
 
 var Post = mongoose.model('Post', postSchema, 'posts')
 var User = mongoose.model('User', userSchema, 'users')
@@ -121,7 +129,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 
 app.get('/', function(req, res){
-  res.send('ok')
+  Post.staticMethod(function(){
+    res.send('ok')
+  })
 })
 
 app.get('/posts', function(req, res, next){
@@ -141,6 +151,7 @@ app.post('/posts', function(req, res, next){
 
 app.get('/posts/:id', function(req, res, next){
   Post.findOne({_id: req.params.id}).populate('author').exec(ok(next, function(post){
+    post.myMethod(function(){})
     res.send(post.toJSON({getters: true, virtuals: true}))
   }))
 })
