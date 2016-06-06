@@ -39,6 +39,10 @@ var postSchema = mongoose.Schema({
     required: true,
     max: 2000
   },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
   followers: [mongoose.Schema.Types.ObjectId],
   meta: mongoose.Schema.Types.Mixed,
   comments: [{
@@ -75,6 +79,15 @@ var postSchema = mongoose.Schema({
   }
 })
 
+var userSchema = mongoose.Schema({
+  firstname: String,
+  lastname: String,
+  role: {
+    type: String,
+    enum: enumRoles
+  }
+})
+
 postSchema.path('viewCounter').validate(positiveNum)
 postSchema.virtual('hasComments').get(function(){
   return this.comments.length>0
@@ -98,7 +111,9 @@ postSchema.pre('validate', function(next){
 postSchema.post('save', function(document){
   console.log('Object was saved!')
 })
+
 var Post = mongoose.model('Post', postSchema, 'posts')
+var User = mongoose.model('User', userSchema, 'users')
 
 // Routes
 app.use(logger('dev'))
@@ -125,7 +140,7 @@ app.post('/posts', function(req, res, next){
 })
 
 app.get('/posts/:id', function(req, res, next){
-  Post.findOne({_id: req.params.id}, ok(next, function(post){
+  Post.findOne({_id: req.params.id}).populate('author').exec(ok(next, function(post){
     res.send(post.toJSON({getters: true, virtuals: true}))
   }))
 })
@@ -144,6 +159,13 @@ app.delete('/posts/:id', function(req, res, next){
     post.remove(ok(next, function(results){
       res.send(results)
     }))
+  }))
+})
+
+app.post('/users', function(req, res, next){
+  var user = new User(req.body)
+  user.save(ok(next, function(results){
+    res.send(results)
   }))
 })
 
