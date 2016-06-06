@@ -79,6 +79,10 @@ postSchema.path('viewCounter').validate(positiveNum)
 postSchema.virtual('hasComments').get(function(){
   return this.comments.length>0
 })
+postSchema.pre('save', function(next){
+  this.updatedAt = new Date()
+  next()
+})
 var Post = mongoose.model('Post', postSchema, 'posts')
 
 // Routes
