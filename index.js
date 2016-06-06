@@ -95,6 +95,9 @@ postSchema.pre('validate', function(next){
   if (error) return next(error)
   next()
 })
+postSchema.post('save', function(document){
+  console.log('Object was saved!')
+})
 var Post = mongoose.model('Post', postSchema, 'posts')
 
 // Routes
