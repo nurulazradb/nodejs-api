@@ -76,6 +76,9 @@ var postSchema = mongoose.Schema({
 })
 
 postSchema.path('viewCounter').validate(positiveNum)
+postSchema.virtual('hasComments').get(function(){
+  return this.comments.length>0
+})
 var Post = mongoose.model('Post', postSchema, 'posts')
 
 // Routes
@@ -104,7 +107,7 @@ app.post('/posts', function(req, res, next){
 
 app.get('/posts/:id', function(req, res, next){
   Post.findOne({_id: req.params.id}, ok(next, function(post){
-    res.send(post.toJSON({getters: true}))
+    res.send(post.toJSON({getters: true, virtuals: true}))
   }))
 })
 
