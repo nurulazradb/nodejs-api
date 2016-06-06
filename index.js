@@ -88,7 +88,7 @@ app.get('/', function(req, res){
 })
 
 app.get('/posts', function(req, res, next){
-  Post.find({}, ok(next, function(posts){
+  Post.find({}, 'id title', ok(next, function(posts){
     res.send(posts)
   }))
 })
